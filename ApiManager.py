@@ -40,6 +40,15 @@ class ApiManager():
             id = x['id']
             self.message_ids.append(id)
 
+    def get_user(self, id):
+        topics_messages_url = 'https://api.intra.42.fr/v2/users/' + str(id)
+
+        headers = {'Authorization': 'Bearer ' + self.token}
+        r = requests.get(topics_messages_url, headers=headers)
+        print("User:", r.status_code, r.reason)
+        ret = r.json()
+        pp.pprint(ret)
+
     def new_message(self, topic_id, content):
         new_message_url = API_URL + "v2/topics/" + topic_id + "/messages"
         headers = {
@@ -61,9 +70,9 @@ class ApiManager():
         # pp.pprint(ret)
 
 
-    def upvote(self, message_id_start):
-        for i in range(0,200):
-            new_upvote_url = API_URL + "v2/messages/" + str(message_id_start) + "/votes"
+    def upvote(self, user_id):
+        for i in range(len(self.message_ids)):
+            new_upvote_url = API_URL + "v2/messages/" + str(self.message_ids[i]) + "/votes"
             print(new_upvote_url)
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -72,12 +81,13 @@ class ApiManager():
 
             vote = {
                 "kind": "upvote",
-                "message_id": message_id_start,
-                "user_id": "29440"
+                "message_id": self.message_ids[i],
+                "user_id": str(user_id)
             }
             r = requests.post(new_upvote_url, headers=headers, json=vote)
             print("Upvote:", r.status_code, r.reason)
-            message_id_start += 1
+
+
 
     def get_me(self):
         me_url = API_URL + "v2/me"
